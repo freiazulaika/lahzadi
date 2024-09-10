@@ -103,7 +103,8 @@ Implementasi dari checklist pada tugas 2:
 4. Melakukan perintah pada _Project Command_ di PWS
 5. Tunggu hasil proyek hingga menunjukkan status _successful_
 
-### Bagam
+### Bagan
+![bagan](https://github.com/user-attachments/assets/1bcf8685-3f62-4cf1-a02e-1859d55bfd96)
 
 ### Fungsi git dalam pengembangan perangkat lunak
 Fungsi git dalam pengembangan perangkat lunak:
