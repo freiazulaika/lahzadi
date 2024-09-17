@@ -137,5 +137,200 @@ Method is_valid() pada form Django digunakan untuk mengetahui validitas/kebenara
 csrf_token penting untuk melindungi aplikasi web dari serangan _Cross-Site Request Forgery (CSRF)_, di mana penyerang dapat membuat pengguna yang telah terautentikasi mengirimkan permintaan berbahaya ke server tanpa sepengetahuan mereka. Tanpa csrf_token, server tidak dapat membedakan antara request asli dan request berbahaya, sehingga penyerang dapat menyalahgunakan sesi pengguna untuk melakukan tindakan yang tidak diinginkan. Sehingga, csrf_token berperan untuk memastikan bahwa setiap request berasal dari sumber yang sah dan aman.
 
 ## Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step (bukan hanya sekadar mengikuti tutorial).
-</details>
+1. Membuat direktori bernama _templates_ di dalam _main directory_
+2. Membuat berkas base.html di dalam direktori tersebut
+3. Menambahkan kode berikut di dalam file base.html:
+```
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block meta %} {% endblock meta %}
+    <title>LAHZADI</title>
+</head>
+
+<body>
+    {% block content %} {% endblock content %}
+</body>
+
+</html>
+```
+4. Pada berkas settings.py di direktori proyek lahzadi, menambahkan kode berikut di dalam variabel TEMPLATES
+```
+'DIRS': [BASE_DIR / 'templates']
+```
+5. Mengubah kode di berkas main.html yang berada di path main/templates/ dengan kode berikut:
+```
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>LAHZADI</h1>
+
+<h5>Name: </h5>
+<p>{{ name }}
+<p>
+<h5>Class: </h5>
+<p>{{ kelas }}
+<p>
+
+{% endblock content %}
+```
+6. Menambahkan kode berikut di bagian atas dari berkas models.py di subdirektori main/:
+```
+import uuid
+```
+7. Melakukan migrasi
+8. Membuat berkas di direktori main dengan nama forms.py dan mengisi dengan kode berikut:
+```
+from django.forms import ModelForm
+from main.models import Product
+
+class ProductForm(ModelForm):
+    class Meta:
+        model = Product
+        fields = ["name", "price", "description", "stock", "size"]
+```
+9. Menambahkan kode berikut di dalam berkas views.py yang ada di direktori main:
+```
+from django.shortcuts import render, redirect
+```
+10. Di dalam views.py, menambahkan fungsi berikut:
+```
+def create_product_entry(request):
+    form = ProductForm(request.POST or None)
+
+    if form.is_valid() and request.method == "POST":
+        form.save()
+        return redirect('main:show_main')
+
+    context = {'form': form}
+    return render(request, "create_product_entry.html", context)
+```
+11. Mengubah fungsi show_main di dalam berkas yang sama menjadi:
+```
+def show_main(request):
+    product_entries = Product.objects.all()
+    context = {
+        'name': 'Freia Arianti Zulaika',
+        'kelas' : 'PBP C',
+        'product_entries' : product_entries,
+    }
+
+    return render(request, "main.html", context)
+```
+12. Membuat berkas create_product_entry.html pada direktori main/templates dan mengisi dengan kode berikut:
+```
+{% extends 'base.html' %}
+{% block content %}
+<h1>Add New Product Entry</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" value="Add Product Entry" />
+            </td>
+        </tr>
+    </table>
+</form>
+
+{% endblock %}
+```
+13. Menambahkan kode berikut ke dalam {% block content %} di berkas main.html dalam path main/templates:
+```
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>LAHZADI</h1>
+
+<h5>Name: </h5>
+<p>{{ name }}
+<p>
+<h5>Class: </h5>
+<p>{{ kelas }}
+<p>
+
+    {% if not product_entries %}
+<p>Belum ada data produk pada Lahzadi.</p>
+{% else %}
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Description</th>
+        <th>Stock</th>
+        <th>Size</th>
+    </tr>
+
+    {% comment %} Berikut cara memperlihatkan data produk di bawah baris ini
+    {% endcomment %}
+    {% for product_entry in product_entries %}
+    <tr>
+        <td>{{product_entry.name}}</td>
+        <td>{{product_entry.price}}</td>
+        <td>{{product_entry.description}}</td>
+        <td>{{product_entry.stock}}</td>
+        <td>{{product_entry.size}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+<br />
+
+<a href="{% url 'main:create_product_entry' %}">
+    <button>Add New Product Entry</button>
+</a>
+{% endblock content %}
+```
+14. Membuat show_xml, show_json, show_xml_by_id, dan show_json_by_id di views.py untuk mengembalikan hasil response:
+```
+def show_xml(request):
+    data = Product.objects.all()
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+def show_json(request):
+    data = Product.objects.all()
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+def show_xml_by_id(request, id):
+    data = Product.objects.filter(pk=id)
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+def show_json_by_id(request, id):
+    data = Product.objects.filter(pk=id)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+```
+15. Melakukan routing di urls.py di direktori main:
+```
+from django.urls import path
+from main.views import show_main, create_product_entry, show_xml, show_json, show_xml_by_id, show_json_by_id
+
+app_name = 'main'
+
+urlpatterns = [
+    path('', show_main, name='show_main'),
+    path('create-product-entry', create_product_entry, name='create_product_entry'),
+    path('xml/', show_xml, name='show_xml'),
+    path('json/', show_json, name='show_json'),
+    path('xml/<str:id>/', show_xml_by_id, name='show_xml_by_id'),
+    path('json/<str:id>/', show_json_by_id, name='show_json_by_id'),
+]
+```
+
+## Mengakses Menggunakan Postman
+# XML
+![XML](https://github.com/user-attachments/assets/68c722b5-03e7-488e-b2e0-b4eb19f41507)
+# JSON
+![JSON](https://github.com/user-attachments/assets/544f1ce5-fd06-4242-930d-830621e52e8b)
+# XML by id
+![XML by id](https://github.com/user-attachments/assets/fd8d2f2c-235d-41f2-a84e-903e5765890a)
+# JSON by id
+![JSON by id](https://github.com/user-attachments/assets/5a3601e5-7ac9-472f-9dd0-02bda01388ab)
+
+</details>
