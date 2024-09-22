@@ -333,4 +333,8 @@ urlpatterns = [
 # JSON by id
 ![JSON by id](https://github.com/user-attachments/assets/5a3601e5-7ac9-472f-9dd0-02bda01388ab)
 
+<details>
+<Summary><b>Tugas 4: Implementasi Autentikasi, Session, dan Cookies pada Django</b></Summary>
+
+</details>
 </details>
