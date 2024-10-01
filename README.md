@@ -670,7 +670,7 @@ Contoh aplikasi yang sudah menerapkan responsive design adalah <b>Pinterest</b> 
     margin: 20px;
 }
 ```
-
+![margin-padding-border](https://github.com/user-attachments/assets/f797dd18-788b-44d5-97e1-7b45520386fc)
 sumber: https://www.pluralsight.com/blog/creative-professional/whats-difference-margin-padding
 
 ### Konsep flex box dan grid layout di CSS
