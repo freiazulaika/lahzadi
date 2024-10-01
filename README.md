@@ -332,6 +332,8 @@ urlpatterns = [
 ## JSON by id
 ![JSON by id](https://github.com/user-attachments/assets/5a3601e5-7ac9-472f-9dd0-02bda01388ab)
 
+</details>
+
 <details>
 <Summary><b>Tugas 4: Implementasi Autentikasi, Session, dan Cookies pada Django</b></Summary>
 
@@ -614,4 +616,206 @@ def logout_user(request):
 ...
 <h5>Sesi terakhir login: {{ last_login }}</h5>
 ```
+</details>
+
+<details>
+<Summary><b>Tugas 5: Desain Web menggunakan HTML, CSS dan Framework CSS</b></Summary>
+
+### Urutan prioritas _CSS Selector_ pada HTML
+Secara garis besar, CSS Selector terbagi atas 4 bagian. Jika diurutkan dari prioritas tertinggi, maka:
+
+1. Inline Styles
+Inline style terdapat pada elemen HTML dengan tanda style=“…”. Contohnya `<p style=“color:red;”>Contoh</p>`
+
+2. ID Selector (#)
+ID Selector ditandai dengan adanya tanda #. ID selector ini memiliki prioritas yang lebih tinggi dari class atau elemen. Contoh:
+```
+#option{
+    color: red;
+}
+```
+
+3. Class Selector (.)
+Class selector ditandai dengan adanya tanda (.). ID selector ini memiliki prioritas yang lebih tinggi dari tag HTML. Contoh:
+```
+.option{
+    color: red;
+}
+```
+
+4. Tag Selector
+ID Selector ini memiliki urutan terrendah. Ditandai dengan penggunaan elemen tag HTML. Contoh:
+```
+p, h2{
+    color: red;
+}
+```
+
+5. Important Rule
+Ditandai dengan adanya tanda `!important`. Dapat mendahulukan urutan prioritas suatu properti tanpa memperhatikan urutan ID Selector di atas.
+
+### _Responsive Design_ dalam pengembangan web
+_Responsive design_ sangat penting untuk diperhatikan karena pengaksesan suatu website oleh pengguna tidak hanya melalui _desktop_, namun juga dapat melalui device-device lain seperti _smartphone_, tablet, dan lain sebagainya. Dengan adanya _responsive design_, pengguna dapat menggunakan _website_ dengan tampilan yang konsisten dan dapat mendapatkan pengalaman yang baik dalam menjalankan _website_ tersebut. 
+
+Contoh aplikasi yang sudah menerapkan responsive design adalah <b>Pinterest</b> dan aplikasi yang belum menerapkan responsive design adalah <b>SIAKNG</b>.
+
+### Perbedaan antara margin, border, dan padding, serta pengaplikasiannya
+* Margin adalah ruang kosong di luar elemen yang berfungsi sebagai pemisah antarelemen.
+* Border adalah garis pembatas yang mengelilingi elemen, terletak di antara margin dan padding.
+* Padding adalah ruang kosong di dalam elemen, terletak di antara elemen dan border.
+```
+.box{
+    border: 10px;
+    padding: 15px;
+    margin: 20px;
+}
+```
+
+sumber: https://www.pluralsight.com/blog/creative-professional/whats-difference-margin-padding
+
+### Konsep flex box dan grid layout di CSS
+
+* Flex box (flexible box) adalah salah satu model layout yang dimiliki CSS. Model layout ini mengatur letak elemen dalam satu dimensi (secara horizontal/kolom atau vertikal/baris). Kegunaan dari flex box adalah elemen-elemen dapat menyesuaikan ukurannya sesuai dengan batas ruang yang diberikan.
+
+```
+.container{
+    display: flex;
+    justify-content: space-around;
+}
+```
+
+* CSS grid adalah model layout CSS yang mengatur letak elemen dalam dua dimensi (horizontal/kolom atau vertikal/baris). Kegunaan dari CSS grid yaitu dapat membuat tata letak yang responsif dan kompleks dengan mudah.
+```
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: auto;
+    }
+```
+
+### Implementasi _checklist_
+#### Menambahkan fitur _edit product_
+1. Pertama, saya menyambungkan tailwind ke aplikasi saya dengan menambahkan kode berikut di bagian head berkas `base.html` di direktori templates.
+```
+<script src="https://cdn.tailwindcss.com">
+</script>
+```
+
+2. Di berkas `views.py`, saya menambahkan fungsi berikut:
+```
+def edit_product(request, id):
+    mood = Product.objects.get(pk = id)
+    form = ProductForm(request.POST or None, instance=mood)
+
+    if form.is_valid() and request.method == "POST":
+        form.save()
+        return HttpResponseRedirect(reverse('main:show_main'))
+
+    context = {'form': form}
+    return render(request, "edit_product.html", context)
+```
+
+3. Saya membuat berkas baru bernama `edit_product.html` di subdirektori `main/templates`. Kemudian, saya mengisi berkas tersebut dengan kode berikut:
+```
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<h1>Edit Mood</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" value="Edit Mood"/>
+            </td>
+        </tr>
+    </table>
+</form>
+
+{% endblock %}
+```
+
+4. Selanjutnya, di berkas `main.html`, saya menambahkan kode berikut untuk memunculkan tombol edit:
+```
+    <td>
+        <a href="{% url 'main:edit_product' product_entry.pk %}">
+            <button>
+                Edit
+            </button>
+        </a>
+    </td>
+```
+
+5. Menambahkan import reverse di `views.py`
+6. Melakukan routing url di `urls.py` dan menambahkan import `edit_product`.
+7. Menambahkan path berikut ke `urlpatterns`:
+```
+...
+path('edit-product/<uuid:id>', edit_product, name='edit_product'),
+```
+
+#### Menambahkan fitur _delete product_
+1. Di berkas `views.py`, saya membuat _function_ baru bernama `delete_product` yang berisi kode berikut:
+```
+def delete_product(request, id):
+    product = Product.objects.get(pk = id)
+    product.delete()
+    return HttpResponseRedirect(reverse('main:show_main'))
+```
+
+2. Selanjutnya, saya melakukan routing url di `urls.py` dengan meng-import `delete_product` dan menambahkan path berikut di `urlspattern`:
+```
+...
+    path('delete/<uuid:id>', delete_product, name='delete_product'),
+```
+
+3. Di berkas `main.html`, saya menambahkan kode berikut untuk memunculkan button delete di tampilan halaman:
+```
+    <td>
+        <a href="{% url 'main:delete_product' product_entry.pk %}">
+            <button>
+                Delete
+            </button>
+        </a>
+    </td>
+```
+
+#### Kustomisasi desain pada template HTML menggunakan Tailwind
+#####  Kustomisasi halaman login, register, dan tambah product
+1. Pertama, saya membuat direktori baru di root directory yaitu direktori `static/css` dan membuat berkas `global.css` di dalamnya.
+
+2. Kemudian, saya menghubungakan `global.css` dan script _Tailwind_ ke `base.html` dengan mengubah isi berkas `base.html` seperti berikut:
+```
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% block meta %} {% endblock meta %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/global.css' %}"/>
+  </head>
+  <body>
+    {% block content %} {% endblock content %}
+  </body>
+</html>
+```
+
+Berkas login, register, dan tambah product:
+* [Login](main/templates/login.html).
+* [Register](main/templates/register.html).
+* [Add Product](main/templates/create_product.html).
+
+#### Membuat Navigation Bar
+Saya membuat berkas bernama `navbar.html` di direktori `templates/`. Berkas dari navbar terdapat di halaman [ini](templates/navbar.html)
+
+#### Membuat daftar produk dan card produk
+Saya membuat berkas bernama `card_product.html` di direktori `main/templates/`. Berkas dari card product terdapat di halaman [ini](main/templates/create_product.html)
 </details>

@@ -1,0 +1,69 @@
+<!-- Navbar -->
+<nav class="bg-[#ceb396] px-12 py-10 shadow-md flex items-center justify-between">
+    <!-- Logo -->
+    <a href="{% url 'main:show_main' %}"
+        class="text-[#8B5E3C] font-serif font-bold text-3xl tracking-wide hover:text-[#B8975A]">
+        LAHZADI
+    </a>
+
+    <!-- Main Navigation -->
+    <div class="hidden md:flex mr-56 space-x-10 text-lg">
+        <a href="#" class="text-[#5C4B3A] hover:text-[#8B5E3C] transition-colors duration-300">NEW PRODUCTS</a>
+        <a href="#" class="text-[#5C4B3A] hover:text-[#8B5E3C] transition-colors duration-300">FRAGRANCES</a>
+        <a href="#" class="text-[#5C4B3A] hover:text-[#8B5E3C] transition-colors duration-300">HOME & CANDLES</a>
+        <a href="#" class="text-[#5C4B3A] hover:text-[#8B5E3C] transition-colors duration-300">GIFTS</a>
+    </div>
+
+    <!-- User Info & Logout Button -->
+    <div class="hidden md:flex items-center space-x-4">
+        {% if user.is_authenticated %}
+        <span class="text-gray-600 text-lg">Welcome, <strong>{{ user.username }}</strong></span>
+        <a href="{% url 'main:logout' %}"
+            class="bg-[#A3292F] hover:bg-[#6D4C3D] text-[#F2E8D5] text-xs uppercase tracking-wider font-bold py-2 px-4 rounded-sm transition duration-300 shadow-sm hover:shadow-md">
+            Log Out
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Hamburger Menu (Mobile) -->
+    <div class="md:hidden flex items-center">
+        <button class="mobile-menu-button focus:outline-none">
+            <svg class="w-8 h-8 text-[#5C4B3A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div
+        class="mobile-menu hidden md:hidden absolute top-16 left-0 right-0 bg-[#F7E7CE] shadow-lg rounded-lg p-6 space-y-4 text-center">
+        <a href="#"
+            class="block text-gray-700 hover:text-[#8B5E3C] text-lg font-semibold transition-colors duration-300">NEW
+            PRODUCTS</a>
+        <a href="#"
+            class="block text-gray-700 hover:text-[#8B5E3C] text-lg font-semibold transition-colors duration-300">FRAGRANCES</a>
+        <a href="#"
+            class="block text-gray-700 hover:text-[#8B5E3C] text-lg font-semibold transition-colors duration-300">HOME &
+            CANDLES</a>
+        <a href="#"
+            class="block text-gray-700 hover:text-[#8B5E3C] text-lg font-semibold transition-colors duration-300">GIFTS</a>
+
+        {% if user.is_authenticated %}
+        <span class="block text-gray-700 text-lg font-semibold py-2">Welcome, {{ user.username }}</span>
+        <a href="{% url 'main:logout' %}"
+            class="block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-full transition-all duration-300">
+            Logout
+        </a>
+        {% endif %}
+    </div>
+
+    <script>
+        const btn = document.querySelector("button.mobile-menu-button");
+        const menu = document.querySelector(".mobile-menu");
+
+        btn.addEventListener("click", () => {
+            menu.classList.toggle("hidden");
+        });
+    </script>
+</nav>

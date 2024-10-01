@@ -2,31 +2,61 @@
 
 {% block meta %}
 <title>Login</title>
+<link rel="stylesheet" href="styles.css">
 {% endblock meta %}
 
 {% block content %}
-<div class="login">
-    <h1>Login</h1>
+<div class="min-h-screen flex">
+    <!-- Left Side (Login Form) -->
+    <div class="flex flex-col justify-center w-1/2 bg-white p-10">
+        <div class="space-y-8">
+            <!-- Welcome Sign -->
+            <div>
+                <h1 class="text-5xl font-extrabold text-[#97704f] text-center">
+                    Welcome to <span class="text-[#5C4B3A]">LAHZADI!</span>
+                </h1>
+            </div>
 
-    <form method="POST" action="">
-        {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-            <tr>
-                <td></td>
-                <td><input class="btn login_btn" type="submit" value="Login" /></td>
-            </tr>
-        </table>
-    </form>
+            <!-- Login Form -->
+            <form class="space-y-6" method="POST" action="">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <!-- Username Input -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-[#5C4B3A]">Username</label>
+                        <input id="username" name="username" type="text" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="Username">
+                    </div>
 
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %} Don't have an account yet?
-    <a href="{% url 'main:register' %}">Register Now</a>
+                    <!-- Password Input -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-[#5C4B3A]">Password</label>
+                        <input id="password" name="password" type="password" required
+                            class="block w-full px-4 py-2 mt-1 border border-[#C3A084] rounded-md text-[#5C4B3A] focus:outline-none focus:ring-2 focus:ring-[#97704f] focus:border-[#97704f]"
+                            placeholder="Password">
+                    </div>
+                </div>
+
+                <!-- Buttons (Login and Signup) -->
+                <div class="flex space-x-4">
+                    <button type="submit"
+                        class="w-full bg-[#97704f] text-[#F5E6CA] text-center font-bold py-2 px-4 rounded-md hover:bg-[#7A5C49]">
+                        Login
+                    </button>
+                    <a href="{% url 'main:register' %}"
+                        class="w-full bg-[#C3A084] text-[#F5E6CA] text-center font-bold py-2 px-4 rounded-md hover:bg-[#A8866C] flex justify-center items-center">
+                        Sign up
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Right Side (Decorative Section) -->
+    <div class="w-1/2 bg-gradient-to-br from-[#D8B384] via-[#5C4B3A] to-[#97704f] flex items-center justify-center">
+        <div class="text-white">
+        </div>
+    </div>
 </div>
-
 {% endblock content %}
