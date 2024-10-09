@@ -827,7 +827,7 @@ Saya membuat berkas bernama `card_product.html` di direktori `main/templates/`. 
 JavaScript dapat membuat suatu halaman web menjadi lebih responsif dan interaktif. Dengan JavaScript, _developer_ dapat membuat halaman web yang merespon tindakan _user_ seperti saat membuat perubahan secara langsung. JavaScript juga memiliki kemampuan untuk merubah konten secara dinamis, data diperbarui langsung dari server dan tidak mengganggu _experience_ pengguna, dan _interface_ yang lebih menarik dan mudah digunakan. 
 
 ### Jelaskan fungsi dari penggunaan await ketika kita menggunakan fetch()! Apa yang akan terjadi jika kita tidak menggunakan await?
-Dalam mengeksekusi perintah `fetch`, `await` berperan untuk menunggu hingga instruksi `fetch` selesai dijalankan sebelum masuk dan menjalankan ke kode perintah selanjutnya. Dengan adanya `await`, kita dapat memastikan bahwa semua data yang dibutuhkan sudah ada sebelum mencoba untuk menggunakan data tersebut di perintah-perintah berikutnya. Jika tidak menggunakan `await`, program akan langsung mengeksekusi perintah selanjutnya tanpa menunggu hasil lengkap dari `fetch`. Jika perintah-perintah selanjutnya menggunakan data yang berasal dari `fetch`, maka dapat terjadi error.
+Dalam mengeksekusi perintah `fetch()`, `await` berperan untuk menunggu hingga instruksi `fetch()` selesai dijalankan sebelum masuk dan menjalankan ke kode perintah selanjutnya. Dengan adanya `await`, kita dapat memastikan bahwa semua data yang dibutuhkan sudah ada sebelum mencoba untuk menggunakan data tersebut di perintah-perintah berikutnya. Jika tidak menggunakan `await`, program akan langsung mengeksekusi perintah selanjutnya tanpa menunggu hasil lengkap dari `fetch()`. Jika perintah-perintah selanjutnya menggunakan data yang berasal dari `fetch()`, maka dapat terjadi error.
 
 ###  Mengapa kita perlu menggunakan decorator csrf_exempt pada view yang akan digunakan untuk AJAX POST?
 `csrf_exempt` digunakan untuk memberikan akses terhadap CSRF tertentu yang ada pada view yang terutama akan digunakan untuk AJAX POST. Penggunaan decorator ini memungkinkan _request_ AJAX POST untuk diproses tanpa perlu adanya _token_ CSRF yang biasanya diperlukan. 
@@ -837,6 +837,7 @@ Pembersihan yang di lakukan di _backend_ memastikan agar data dapat berubah deng
 
 ### Implementasi _Checklist_
 #### AJAX `GET`
+#####  Ubahlah kode cards data mood agar dapat mendukung AJAX GET
 1. Saya melakukan impor di berkas `views.py` terkait dua decorator berikut:
 ```
 from django.views.decorators.csrf import csrf_exempt
@@ -868,7 +869,7 @@ def add_product_entry_ajax(request):
 from main.views import ..., add_product_entry_ajax
 urlpatterns = [
     ...
-    path('create-product-entry-ajax', add_product_entry_ajax, name='add_product_entry_ajax'),
+    path('create-ajax', add_product_entry_ajax, name='add_product_entry_ajax'),
 ]
 ```
 4. Di berkas `views.py`, saya menghapus bagian berikut di `show_main`
@@ -955,80 +956,29 @@ async function refreshProductEntries() {
     }
 ```
 
+##### Lakukan pengambilan data mood menggunakan AJAX GET. Pastikan bahwa data yang diambil hanyalah data milik pengguna yang logged-in.
+1. Untuk mengimplementasikan bagian ini, saya menambahkan argumen `user=user` di berkas `views.py` bagian `add_product_entry_ajax`
+```
+new_product = Product(
+        name=name, description=description,
+        price=price, stock=stock, size=size,
+        user=user
+    )
+```
+
 #### AJAX `POST`
-1. Di berkas `main.html`, saya menambahkan kode berikut tepat di bawah kode `<div id="product_entry_cards"></div>`:
+#####  Buatlah sebuah tombol yang membuka sebuah modal dengan form untuk menambahkan mood.
+1. Saya menambahkan kode berikut di berkas `main.html` untuk membuat button yang jika di-klik akan membuka modal.
 ```
-<div id="crudModal" tabindex="-1" aria-hidden="true"
-            class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-x-hidden overflow-y-auto transition-opacity duration-300 ease-out">
-            <div id="crudModalContent"
-                class="relative bg-white rounded-lg shadow-lg w-5/6 sm:w-3/4 md:w-1/2 lg:w-1/3 mx-4 sm:mx-0 transform scale-95 opacity-0 transition-transform transition-opacity duration-300 ease-out">
-                <!-- Modal header -->
-                <div class="flex items-center justify-between p-4 border-b rounded-t">
-                    <h3 class="text-xl font-semibold text-gray-900">
-                        Add New Product
-                    </h3>
-                    <button type="button"
-                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
-                        id="closeModalBtn">
-                        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-
-                <!-- Modal body -->
-                <div class="px-6 py-4 space-y-6 form-style">
-                    <form id="productEntryForm">
-                        <div class="mb-4">
-                            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                            <input type="text" id="name" name="name"
-                                class="mt-1 block w-full border border-gray-300 rounded-md p-2 hover:border-[#8B5E3C]-700"
-                                placeholder="Enter product name" required>
-                        </div>
-                        <div class="mb-4">
-                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea id="description" name="description" rows="3"
-                                class="mt-1 block w-full h-52 resize-none border border-gray-300 rounded-md p-2 hover:border-[#8B5E3C]-700"
-                                placeholder="Describe your product" required></textarea>
-                        </div>
-                        <div class="mb-4">
-                            <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
-                            <input type="number" id="price" name="price" min="1"
-                                class="mt-1 block w-full border border-gray-300 rounded-md p-2 hover:border-[#8B5E3C]-700"
-                                placeholder="Enter product price" required>
-                        </div>
-                        <div class="mb-4">
-                            <label for="stock" class="block text-sm font-medium text-gray-700">Stock</label>
-                            <input type="number" id="stock" name="stock" min="1"
-                                class="mt-1 block w-full border border-gray-300 rounded-md p-2 hover:border-[#8B5E3C]-700"
-                                placeholder="Enter stock amount" required>
-                        </div>
-                        <div class="mb-4">
-                            <label for="size" class="block text-sm font-medium text-gray-700">Size (ml)</label>
-                            <input type="number" id="size" name="size" min="1"
-                                class="mt-1 block w-full border border-gray-300 rounded-md p-2 hover:border-[#8B5E3C]-700"
-                                placeholder="Enter product size" required>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Modal footer -->
-                <div
-                    class="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2 p-6 border-t border-gray-200 rounded-b justify-center md:justify-end">
-                    <button type="button"
-                        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg"
-                        id="cancelButton">Cancel</button>
-                    <button type="submit" id="submitProductEntry" form="productEntryForm"
-                        class="bg-[#8B5E3C] hover:bg-[#8B5E3C] text-white font-bold py-2 px-4 rounded-lg">Save</button>
-                </div>
-            </div>
-        </div>
+...
+    <button data-modal-target="crudModal" data-modal-toggle="crudModal"
+        class="btn bg-[#5C4B3A] hover:bg-[#97704f] text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105"
+        onclick="showModal();">
+        Add New Product by AJAX
+    </button>
+...
 ```
-2. Kemudian, saya menambahkan fungsi-fungsi berikut di blok yang sama:
+2. Di blok `<script>` dalam berkas yang sama, saya menambahkan fungsi untuk handle jika client membuka atau menutup modal:
 ```
 const modal = document.getElementById('crudModal');
     const modalContent = document.getElementById('crudModalContent');
@@ -1059,19 +1009,17 @@ const modal = document.getElementById('crudModal');
     document.getElementById("cancelButton").addEventListener("click", hideModal);
     document.getElementById("closeModalBtn").addEventListener("click", hideModal);
 ```
-3. Kemudian, saya menambahkan tombol "Add New Product AJAX" dengan kode berikut:
-```
-        <a href="{% url 'main:create_product_entry' %}"
-            class="bg-[#5C4B3A] hover:bg-[#97704f] text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
-            Add New Product
-        </a>
-        <button data-modal-target="crudModal" data-modal-toggle="crudModal"
-            class="btn bg-[#5C4B3A] hover:bg-[#97704f] text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105"
-            onclick="showModal();">
-            Add New Product by AJAX
-        </button>
-```
-4. Di blok `<script>` berkas `main.html`, saya menambahkan fungsi berikut:
+
+##### Buatlah fungsi view baru untuk menambahkan mood baru ke dalam basis data.
+Pengimplementasian sudah dijelaskan sebelumnya dengan menambahkan view `add_product_entry_ajax`
+
+##### Buatlah path /create-ajax/ yang mengarah ke fungsi view yang baru kamu buat.
+Pengimplementasian sudah dijelaskan di bagian routing dengan menambahkan path di berkas `urls.py`
+
+##### Hubungkan form yang telah kamu buat di dalam modal kamu ke path /create-ajax/.
+Form dalam modal akan dihubungkan ke path /create-ajax/ melalui fetch() yang ada di dalam fungsi addProduct()
+
+Saya menghubungkan form di dalam modal dan path /create-ajax/ dengan menggunakan fetch() di dalam fungsi `addProductEntry()` yang ada di blok `<script>` berkas `main.html`:
 ```
 function addProductEntry() {
     fetch("{% url 'main:add_product_entry_ajax' %}", {
@@ -1085,10 +1033,7 @@ function addProductEntry() {
 
     return false;
     }
-```
-5. Saya menambahkan _event listener_ pada form yang ada di modal untuk menjalankan fungsi `addProductEntry`:
-```
-...
+
 document.getElementById("productEntryForm").addEventListener("submit", (e) => {
         e.preventDefault();
         addProductEntry();
